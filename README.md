@@ -6,8 +6,8 @@ elasticsearch and kibana.
 What this will do is create a preconfigured virtual machine, running elasticsearch, kibana, elastic-curator, 
 and the client.py collector. At minimum you'll require git and vagrant to be installed.
 
-  - `git clone`
-  - `cd ed-market-info`
+  - `git clone https://github.com/theangryangel/elite-dangerous-eddn-elasticsearch-kibana-vagrant.git`
+  - `cd elite-dangerous-eddn-elasticsearch-kibana-vagrant`
   - `vagrant up` - This may take sometime as it will download, install and configure a small Debian virtual machine
   - Open a web browser and head to [http://localhost:5601/](http://localhost:5601/)
   - The first time you open kibana you'll be asked to configure what indexes for it to look at. You should only do this
@@ -22,3 +22,9 @@ and the client.py collector. At minimum you'll require git and vagrant to be ins
   - Data is only collected whilst the VM is on, has a network internet connection, the collector and elasticsearch
     daemons are running - they will do this automatically for you - and more
 	importantly as long as the EDDN receiving and passing data
+
+## Uninstalling/Bored?
+  - cd to the cloned git repository
+  - `vagrant destroy`
+  - If you need git or vagrant any longer, refer to their documentation to
+    uninstall
