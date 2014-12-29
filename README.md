@@ -18,6 +18,13 @@ and the client.py collector. At minimum you'll require [git](http://git-scm.com/
   - Now you can mind the data as much as you desire - i'd suggest looking up how to use Kibana (4) as a starting point,
     or just having a play around.
 
+### Stopping and starting the VM
+When in the cloned git repository:
+  - To stop run `vagrant halt`
+  - To restart later run `vagrant up`
+
+The reason why you do it this way is because the collector is run directly from the git repository, allowing for easy update. When you manually start a VM through the normal management interfaces the files may not be correctly shared with the VM. Vagrant ensures that this happens everytime on start up.
+
 ### ACHTUNG!
   - Data older than 30 days will be automatically culled
   - Data is only collected whilst the VM is on, has a network internet connection, the collector and elasticsearch
