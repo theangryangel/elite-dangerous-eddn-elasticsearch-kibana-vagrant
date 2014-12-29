@@ -4,8 +4,9 @@ elasticsearch and kibana.
 
 ## Getting started
 What this will do is create a preconfigured virtual machine, running elasticsearch, kibana, elastic-curator, 
-and the client.py collector. At minimum you'll require git and vagrant to be installed.
+and the client.py collector. At minimum you'll require [git](http://git-scm.com/), [vagrant](https://www.vagrantup.com/), [ansible](http://www.ansible.com/) and a virtualisation platform supported by vagrant to be installed - as I'm using ansible, you'll require Linux, OSX, or to get ansible running under cygwin on Windows.
 
+  - Open a command line interface, and cd to somewhere you can store a small amount of data
   - `git clone https://github.com/theangryangel/elite-dangerous-eddn-elasticsearch-kibana-vagrant.git`
   - `cd elite-dangerous-eddn-elasticsearch-kibana-vagrant`
   - `vagrant up` - This may take sometime as it will download, install and configure a small Debian virtual machine
