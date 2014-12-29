@@ -1,0 +1,70 @@
+{
+	"template": "eddn-*",
+	"mappings": {
+		"_default_": {
+			"properties": {
+				"$schemaRef": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"header": {
+					"properties": {
+						"gatewayTimestamp": {
+							"type": "date",
+							"format": "dateOptionalTime"
+						},
+						"softwareName": {
+							"type": "string",
+							"index": "not_analyzed"
+						},
+						"softwareVersion": {
+							"type": "string",
+							"index": "not_analyzed"
+						},
+						"uploaderID": {
+							"type": "string",
+							"index": "not_analyzed"
+						}
+					}
+				},
+				"message": {
+					"properties": {
+						"buyPrice": {
+							"type": "long"
+						},
+						"demand": {
+							"type": "long"
+						},
+						"itemName": {
+							"type": "string",
+							"index": "not_analyzed"
+						},
+						"sellPrice": {
+							"type": "long"
+						},
+						"stationName": {
+							"type": "string",
+							"index": "not_analyzed"
+						},
+						"stationStock": {
+							"type": "long"
+						},
+						"systemName": {
+							"type": "string",
+							"index": "not_analyzed"
+						},
+						"timestamp": {
+							"type": "date",
+							"format": "dateOptionalTime"
+						}
+					}
+				}
+			},
+			"_all": {
+				"enabled": true
+			}
+		}
+	},
+	"aliases": {
+	}
+}

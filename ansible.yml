@@ -1,0 +1,105 @@
+---
+
+- hosts: all
+  sudo: true
+
+  vars:
+    kibana_version: "kibana-4.0.0-beta3"
+    elasticsearch_curator_older_than: "30"
+    elasticsearch_curator_hour: "22"
+    elasticsearch_curator_minute: "0"
+    eddn_index_prefix: "eddn-"
+
+  tasks:
+    - name: Add wheezy-backports repo
+      apt_repository: repo='deb http://http.debian.net/debian wheezy-backports main contrib non-free' state=present
+
+    - name: Add elasticsearch repo
+      apt_repository: repo='deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main' state=present
+
+    - name: Add elasticsearch repo key
+      apt_key: url=http://packages.elasticsearch.org/GPG-KEY-elasticsearch
+
+    - name: Apt update
+      apt: update_cache=yes
+
+    - name: Apt dist-upgrade
+      apt: upgrade=dist
+
+    - name: Install user essentials from default repo
+      apt: name={{ item }} state=present
+      with_items:
+        - curl
+        - vim
+        - screen
+        - libzmq1
+        - openjdk-7-jre-headless
+        - elasticsearch
+        - unattended-upgrades
+
+    - name: Install user essentials from backports repo
+      apt: name={{ item }} state=present default_release=wheezy-backports
+      with_items:
+        - python-pip
+        - python-simplejson
+        - python-gevent
+        - python-zmq
+        - ruby
+        - ruby-dev
+        - git
+
+    - name: Install from pip
+      pip: name={{ item }}
+      with_items:
+        - requests
+        - elasticsearch-curator
+
+    - name: Setup elasticsearch-curator cron
+      cron: name="elasticsearch-curator" job="/usr/local/bin/curator delete -p {{ eddn_index_prefix }} --older-than {{ elasticsearch_curator_older_than }}" minute={{ elasticsearch_curator_minute }} hour={{ elasticsearch_curator_hour }}
+
+    - name: Enable elasticsearch service
+      service: name=elasticsearch enabled=yes state=restarted
+
+    - name: Create Kibana directory
+      file: path=/opt/kibana state=directory
+
+    - name: Download and install Kibana
+      shell: "[[ -f /opt/kibana/bin/kibana ]] || (curl -O https://download.elasticsearch.org/kibana/kibana/{{ kibana_version }}.tar.gz && tar xvf {{ kibana_version }}.tar.gz -C /opt/kibana --strip-components=1 && rm -f {{ kibana_version }}.tar.gz)"
+
+    # This template disables analysis for a bunch of fields
+    - name: Setup a default elasticsearch template for eddn
+      shell: curl -XPUT http://localhost:9200/_template/eddn -d @/vagrant/template.json
+
+    # I'm too lazy to write init scripts manually
+    # We use a git HEAD version of pleaserun as the released version has a
+    # sysvinit issue. Debian 7.7 still uses sysvinit.
+    - name: Install pleaserun
+      shell: "dir=`mktemp -d` && git clone https://github.com/jordansissel/pleaserun.git $dir && make -C $dir gem && gem install $dir/*.gem && rm -rf $dir"
+
+    - name: Create kibana user
+      user: name=kibana shell=/sbin/nologin home=/opt/kibana system=yes
+
+    - name: Please run kibana
+      shell: pleaserun --chdir=/opt/kibana --user=kibana --install --overwrite /opt/kibana/bin/kibana
+
+    - name: Enable and start kibana
+      service: name=kibana state=restarted enabled=yes
+
+    - name: Create a eddn-collector user
+      user: name=eddn-collector shell=/sbin/nologin home=/opt/eddn-collector system=yes
+
+    - name: Please run eddn-collector
+      shell: pleaserun --user=eddn-collector --install --overwrite --name=eddn-collector python /vagrant/collector.py
+
+    # Should really add a logrotate config for these files
+    - name: eddn-collector logs
+      file: path={{ item }} owner=eddn-collector mode=0644 state=touch
+      with_items:
+        - /var/log/eddn-collector.log
+        - /var/log/eddn-collector.err
+
+    - name: Enable and start eddn-collector
+      service: name=eddn-collector state=restarted enabled=yes
+
+    - name: Next steps
+      debug: msg="Please refer to the README.md for the next steps!"
